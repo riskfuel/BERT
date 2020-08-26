@@ -1,0 +1,75 @@
+# Source: fx_datagen/templates/workflow.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+    generateName: bert-test-
+spec:
+    hostNetwork: true
+    entrypoint: download-train
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In 
+                values:
+                - dl13
+                
+    imagePullSecrets:
+        - name: regcred
+
+    volumes:
+    - name: local-storage
+      persistentVolumeClaim:
+        claimName: local-pvc-dl13
+    - name: dshm
+      emptyDir:
+        medium: Memory
+
+    templates:
+    - name: download-train
+      steps:
+        - name: download
+          template: download-wiki
+        - name: pretrain
+          template: pretrain
+      
+    - name: download-wiki
+      container:
+        image: riskfuel/BERT
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: "/workspace/bert/data/download"
+            name: local-storage
+        command: [/bin/bash, data/create_datasets_from_start.sh, wiki_only]
+        resources: 
+          limits:
+            cpu: 32
+            memory: 128Gi
+          requests:
+            cpu: 30
+            memory: 100Gi
+
+    - name: pretrain
+      container:
+        image: riskfuel/BERT
+        imagePullPolicy: Always
+        
+        command: [/bin/bash, scripts/run_pretraining.sh]
+
+        volumeMounts:
+          - mountPath: "/workspace/bert/data/download"
+            name: local-storage
+          - mountPath: /dev/shm
+            name: dshm
+
+        resources: 
+          limits:
+            cpu: 32
+            memory: 128Gi
+            nvidia.com/gpu: 1
+          requests:
+            cpu: 30
+            memory: 100Gi
+            nvidia.com/gpu: 1

@@ -38,4 +38,4 @@ RUN pip install --upgrade --no-cache-dir pip \
 
 RUN apt-get install -y iputils-ping
 
-COPY DeepLearningExamples/LanguageModeling/BERT .
+COPY DeepLearningExamples/PyTorch/LanguageModeling/BERT .
