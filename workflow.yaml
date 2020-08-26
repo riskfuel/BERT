@@ -37,12 +37,13 @@ spec:
       
     - name: download-wiki
       container:
-        image: riskfuel/BERT
+        image: riskfuel/bert:latest
         imagePullPolicy: Always
         volumeMounts:
           - mountPath: "/workspace/bert/data/download"
             name: local-storage
-        command: [/bin/bash, data/create_datasets_from_start.sh, wiki_only]
+        command: ["./data/create_datasets_from_start.sh"]
+        args: ["wiki_only"]
         resources: 
           limits:
             cpu: 32
@@ -53,11 +54,9 @@ spec:
 
     - name: pretrain
       container:
-        image: riskfuel/BERT
+        image: riskfuel/bert:latest
         imagePullPolicy: Always
-        
-        command: [/bin/bash, scripts/run_pretraining.sh]
-
+        command: ["./scripts/run_pretraining.sh"]
         volumeMounts:
           - mountPath: "/workspace/bert/data/download"
             name: local-storage
