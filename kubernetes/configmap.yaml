@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bert-config
+  namespace: default
+data:
+  INPUT_DIR: '/data/bert'
