@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: config-map-example
+spec:
+  entrypoint: A
+
+  templates:
+  - name: A
+    script:
+      image: debian:9.4
+      envFrom:
+      - configMapRef:
+          name: bert-config
+      command: [bash]
+      source: |                                         
+        echo $INPUT_DIR
